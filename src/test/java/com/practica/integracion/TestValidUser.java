@@ -52,7 +52,8 @@ public class TestValidUser {
 		
 		systemManager.addRemoteSystem("10", remote);
 		
-		verify(authDao, times(1)).getAuthData("10");	
+		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).updateSomeData(usuario,remote);
 		inOrder.verify(authDao).getAuthData("10");
 		inOrder.verify(genericDao).updateSomeData(usuario, remote);
 	}
@@ -66,6 +67,7 @@ public class TestValidUser {
 		systemManager.startRemoteSystem("10", "remId");
 		
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).getSomeData(usuario,"where id=remId");
 		inOrder.verify(authDao).getAuthData("10");
 		inOrder.verify(genericDao).getSomeData(usuario, "where id=remId");
 	}
@@ -73,14 +75,15 @@ public class TestValidUser {
 	@Test
 	public void testStopRemoteSystem() throws OperationNotSupportedException, SystemManagerException{
 		when(authDao.getAuthData("10")).thenReturn(usuario);
-		when(genericDao.getSomeData(usuario,"where id=remId")).thenReturn(new HashSet());
+		when(genericDao.getSomeData(usuario,"where id=1")).thenReturn(new HashSet());
 		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		
-		systemManager.stopRemoteSystem("10", "remId");
+		systemManager.stopRemoteSystem("10", "1");
 		
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).getSomeData(usuario,"where id=1");
 		inOrder.verify(authDao).getAuthData("10");
-		inOrder.verify(genericDao).getSomeData(usuario, "where id=remId");
+		inOrder.verify(genericDao).getSomeData(usuario, "where id=1");
 	}
 	
 	@Test
@@ -90,7 +93,8 @@ public class TestValidUser {
 		
 		systemManager.deleteRemoteSystem("10", "remId");
 		
-		verify(authDao, times(1)).getAuthData("10");	
+		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).deleteSomeData(usuario,"remId");
 		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		inOrder.verify(authDao).getAuthData("10");
 		inOrder.verify(genericDao).deleteSomeData(Mockito.any(User.class), Mockito.anyString());

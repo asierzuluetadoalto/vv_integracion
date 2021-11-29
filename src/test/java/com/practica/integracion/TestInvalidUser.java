@@ -15,6 +15,7 @@ import javax.naming.OperationNotSupportedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,36 +48,57 @@ public class TestInvalidUser {
 	@Test
 	public void testAddRemoteSystem() throws OperationNotSupportedException, SystemManagerException{		
 		when(authDao.getAuthData("10")).thenReturn(null);
-		when(genericDao.updateSomeData(null, remote)).thenReturn(false); //quizá la excepción
+		when(genericDao.updateSomeData(null, remote)).thenReturn(false); 
+		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		
 		assertThrows(SystemManagerException.class, () -> {systemManager.addRemoteSystem("10", remote);});
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).updateSomeData(null,remote);
+		
+		inOrder.verify(authDao).getAuthData("10");
+		inOrder.verify(genericDao).updateSomeData(null, remote);
 	}
 	
 	@Test
 	public void testStartRemoteSystem() throws OperationNotSupportedException, SystemManagerException{		
 		when(authDao.getAuthData("10")).thenReturn(null);
-		when(genericDao.getSomeData(Mockito.anyObject(),Mockito.anyString())).thenThrow(OperationNotSupportedException.class);
+		when(genericDao.getSomeData(Mockito.any(),Mockito.anyString())).thenThrow(OperationNotSupportedException.class);
+		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		
 		assertThrows(SystemManagerException.class, () -> {systemManager.startRemoteSystem("10", "remId");});
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).getSomeData(null,"where id=remId");
+		
+		inOrder.verify(authDao).getAuthData("10");
+		inOrder.verify(genericDao).getSomeData(null, "where id=remId");
 	}
 	
 	@Test
 	public void testStopRemoteSystem() throws OperationNotSupportedException, SystemManagerException{
 		when(authDao.getAuthData("10")).thenReturn(null);
-		when(genericDao.getSomeData(Mockito.anyObject(),Mockito.anyString())).thenThrow(OperationNotSupportedException.class);
+		when(genericDao.getSomeData(Mockito.any(),Mockito.anyString())).thenThrow(OperationNotSupportedException.class);
+		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		
 		assertThrows(SystemManagerException.class, () -> {systemManager.stopRemoteSystem("10", "1");});
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).getSomeData(null,"where id=1");
+		
+		inOrder.verify(authDao).getAuthData("10");
+		inOrder.verify(genericDao).getSomeData(null, "where id=1");
+		
 	}
 	
 	@Test
 	public void testDeleteRemoteSystem() throws OperationNotSupportedException, SystemManagerException{
 		when(authDao.getAuthData("10")).thenReturn(null);
-		when(genericDao.deleteSomeData(Mockito.anyObject(), Mockito.anyString())).thenReturn(false); //quizá la excepción
+		when(genericDao.deleteSomeData(Mockito.any(), Mockito.anyString())).thenReturn(false); //quizá la excepción
+		InOrder inOrder = Mockito.inOrder(authDao,genericDao);
 		
 		assertThrows(SystemManagerException.class, () -> {systemManager.deleteRemoteSystem("10", "remId");});
 		verify(authDao, times(1)).getAuthData("10");
+		verify(genericDao, times(1)).deleteSomeData(null,"remId");
+
+		inOrder.verify(authDao).getAuthData("10");
+		inOrder.verify(genericDao).deleteSomeData(null, "remId");
 	}
 }
