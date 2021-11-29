@@ -33,13 +33,12 @@ public class TestInvalidUser {
 	@Mock
 	private GenericDAO genericDao;
 	
-	private User usuario;
 	private Object remote;
 	private SystemManager systemManager;
 	
 	@BeforeEach
 	void setUp() throws Exception {
-		usuario = new User("10","nombre","apellido","dir",new ArrayList<Object>());
+		new User("10","nombre","apellido","dir",new ArrayList<Object>());
 		remote = new Object();
 		
 		systemManager = new SystemManager(authDao,genericDao);
